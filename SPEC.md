@@ -19,6 +19,8 @@ An **edit** is one syntactic change at one location of the document: a `(locatio
 
 The edit space is enumerated mechanically from the object model, so it is complete by construction: 15,255 edits as of this version, growing only when the OpenAPI specification itself grows.
 
+The location syntax is this model's own, deliberately. JSONPath (RFC 9535), which the OpenAPI Overlay Specification uses for its targets, expresses most of these paths directly, but not all of them: locations here address the object model rather than a document instance (the `schema` segment covers the schema and its sub-schemas at any depth), and the `x-*` form matches key names by prefix, which JSONPath expresses only through filter expressions. Aligning with JSONPath where the semantics permit is an open question; see the issue tracker.
+
 ## Changes
 
 A **change** is a named, human-meaningful classification of one or more edits, identified by an id (`request-property-max-length-decreased`). Each change declares:
