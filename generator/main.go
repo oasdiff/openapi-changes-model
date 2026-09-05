@@ -19,26 +19,17 @@ import (
 )
 
 type Model struct {
-	Model         string      `yaml:"model"`
-	Version       string      `yaml:"version"`
-	GeneratedFrom string      `yaml:"generated_from"`
-	Vocabulary    Vocabulary  `yaml:"vocabulary"`
-	SeverityLaw   SeverityLaw `yaml:"severity_law"`
-	// Transitions are multi-edit document shapes recognized as one semantic
-	// change: the raw edits of the listed kinds at the recognized shape are
-	// echoes and are suppressed; the reporting changes carry the finding.
-	Transitions []Transition `yaml:"transitions"`
-	Changes     []Change     `yaml:"changes"`
-	// Coverage is the full edit space of an OpenAPI document with each
-	// edit's disposition: covered by named changes, waived with a reason,
-	// or non-contract.
-	Coverage []coverage.Edit `yaml:"coverage"`
+	Model         string          `yaml:"model"`
+	Version       string          `yaml:"version"`
+	GeneratedFrom string          `yaml:"generated_from"`
+	Vocabulary    Vocabulary      `yaml:"vocabulary"`
+	SeverityLaw   SeverityLaw     `yaml:"severity_law"`
+	Transitions   []Transition    `yaml:"transitions"`
+	Changes       []Change        `yaml:"changes"`
+	Coverage      []coverage.Edit `yaml:"coverage"`
 }
 
 type Vocabulary struct {
-	// Locations describes the location grammar and the claim syntax built
-	// on it; locations are an open set derived from the OpenAPI object
-	// model, not an enumeration.
 	Locations  string            `yaml:"locations"`
 	Actions    map[string]string `yaml:"actions"`
 	Directions map[string]string `yaml:"directions"`
@@ -47,7 +38,6 @@ type Vocabulary struct {
 	Effects    map[string]string `yaml:"effects"`
 	Guards     map[string]string `yaml:"guards"`
 	Levels     map[string]string `yaml:"levels"`
-	// Statuses and Categories describe the coverage dispositions.
 	Statuses   map[string]string `yaml:"statuses"`
 	Categories map[string]string `yaml:"categories"`
 }
@@ -70,13 +60,10 @@ type VerdictRule struct {
 }
 
 type Transition struct {
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
-	// ClaimedKinds are the kinds of raw findings the transition suppresses
-	// at the shape it recognizes; findings of other kinds still report.
+	Name         string   `yaml:"name"`
+	Description  string   `yaml:"description"`
 	ClaimedKinds []string `yaml:"claimed_kinds"`
-	// ReportedBy are the changes that report the transition itself.
-	ReportedBy []string `yaml:"reported_by"`
+	ReportedBy   []string `yaml:"reported_by"`
 }
 
 type Change struct {
@@ -269,5 +256,4 @@ func main() {
 	fmt.Printf("wrote %s: %d changes, %d edits\n", *out, len(changes), len(model.Coverage))
 }
 
-// ensure the law encoded above matches the implementation
-var _ = rules.DeriveLevel
+var _ = rules.DeriveLevel // the law encoded above is the one this implementation runs
