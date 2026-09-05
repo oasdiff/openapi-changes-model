@@ -4,6 +4,7 @@ model: OpenAPI Changes Model
 version: 0.1.0-draft
 generated_from: oasdiff v1.31.0
 vocabulary:
+    locations: 'A location is a path through the OpenAPI object model, dot-separated, with * standing for a map entry (a path, a method, a media type, a property name) and x-* for a specification extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any request body schema. A claim is location:action[,action...], the edits a change covers; a claim pattern may use ** to cover a location family.'
     actions:
         add: a member is added to a collection (a property, an enum value, a response status)
         change: a field's value is replaced by an incomparable value
@@ -16,6 +17,25 @@ vocabulary:
         none: the change concerns neither side of the wire (metadata, lifecycle)
         request: the change concerns what clients send
         response: the change concerns what clients receive
+    areas:
+        components: the components section (compared where referenced)
+        headers: response headers
+        parameters: operation and path parameters
+        paths: paths, operations, and operation metadata
+        requestBody: the request body object and its media types
+        responses: the responses map, response objects, and their media types
+        schema: a schema and its keywords, wherever the schema appears
+        security: security schemes, requirements, and scopes
+        tags: tags and their metadata
+    kinds:
+        constraints: bounds such as min/max, length, items, pattern
+        existence: an element is added or removed
+        lifecycle: deprecation, sunset, and stability
+        mutability: read-only or write-only state
+        requiredness: required, optional, or nullable state
+        structure: 'composition and applicator keywords: allOf, anyOf, oneOf, discriminator, if/then/else, contains'
+        type: data type or format
+        values: enum, const, and default values
     effects:
         incomparable: the change both rejects previously valid payloads and accepts previously invalid ones
         narrows: the new contract rejects payloads the previous contract accepted
@@ -34,6 +54,15 @@ vocabulary:
         error: a consumer that conformed to the old contract can stop conforming or fail
         info: provably safe for every consumer that conformed to the old contract
         warning: plausibly breaking, but the specification cannot decide; the finding says what is missing
+    statuses:
+        covered: one or more named changes claim the edit
+        non-contract: the edit cannot affect which payloads are valid (descriptions, examples, extensions)
+        uncovered: no change and no waiver; the reference implementation fails its build in this state, so the listing normally contains none
+        waived: no change covers the edit and a written reason says why; the category refines it
+    categories:
+        covered-as: the same document edit is reported under another action
+        open: a missing change, with its reason and a suggested id
+        resolved-at-usage: component definitions are compared at their referencing operations, which have their own rows
 severity_law:
     description: 'A change''s level is derived from its effect, its direction, and its guards. Guards apply first, each nullifying or requalifying the effect on the side it speaks about; then the effect and direction decide: narrowing breaks request consumers, widening breaks response consumers, an incomparable change breaks both, and an unknown one is a warning. When a change cannot be proven safe it is reported as breaking.'
     guards_apply_first:

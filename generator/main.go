@@ -31,11 +31,20 @@ type Model struct {
 }
 
 type Vocabulary struct {
+	// Locations describes the location grammar and the claim syntax built
+	// on it; locations are an open set derived from the OpenAPI object
+	// model, not an enumeration.
+	Locations  string            `yaml:"locations"`
 	Actions    map[string]string `yaml:"actions"`
 	Directions map[string]string `yaml:"directions"`
+	Areas      map[string]string `yaml:"areas"`
+	Kinds      map[string]string `yaml:"kinds"`
 	Effects    map[string]string `yaml:"effects"`
 	Guards     map[string]string `yaml:"guards"`
 	Levels     map[string]string `yaml:"levels"`
+	// Statuses and Categories describe the coverage dispositions.
+	Statuses   map[string]string `yaml:"statuses"`
+	Categories map[string]string `yaml:"categories"`
 }
 
 type SeverityLaw struct {
@@ -112,6 +121,11 @@ func main() {
 		Version:       "0.1.0-draft",
 		GeneratedFrom: "oasdiff " + oasdiffVersion(),
 		Vocabulary: Vocabulary{
+			Locations: "A location is a path through the OpenAPI object model, dot-separated, with * standing " +
+				"for a map entry (a path, a method, a media type, a property name) and x-* for a specification " +
+				"extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any " +
+				"request body schema. A claim is location:action[,action...], the edits a change covers; a claim " +
+				"pattern may use ** to cover a location family.",
 			Actions: map[string]string{
 				"add":      "a member is added to a collection (a property, an enum value, a response status)",
 				"remove":   "a member is removed from a collection",
@@ -125,6 +139,27 @@ func main() {
 				"request":  "the change concerns what clients send",
 				"response": "the change concerns what clients receive",
 				"none":     "the change concerns neither side of the wire (metadata, lifecycle)",
+			},
+			Areas: map[string]string{
+				"schema":      "a schema and its keywords, wherever the schema appears",
+				"parameters":  "operation and path parameters",
+				"requestBody": "the request body object and its media types",
+				"responses":   "the responses map, response objects, and their media types",
+				"paths":       "paths, operations, and operation metadata",
+				"headers":     "response headers",
+				"security":    "security schemes, requirements, and scopes",
+				"tags":        "tags and their metadata",
+				"components":  "the components section (compared where referenced)",
+			},
+			Kinds: map[string]string{
+				"existence":    "an element is added or removed",
+				"requiredness": "required, optional, or nullable state",
+				"mutability":   "read-only or write-only state",
+				"type":         "data type or format",
+				"constraints":  "bounds such as min/max, length, items, pattern",
+				"values":       "enum, const, and default values",
+				"structure":    "composition and applicator keywords: allOf, anyOf, oneOf, discriminator, if/then/else, contains",
+				"lifecycle":    "deprecation, sunset, and stability",
 			},
 			Effects: map[string]string{
 				"narrows":      "the new contract rejects payloads the previous contract accepted",
@@ -146,6 +181,17 @@ func main() {
 				"error":   "a consumer that conformed to the old contract can stop conforming or fail",
 				"warning": "plausibly breaking, but the specification cannot decide; the finding says what is missing",
 				"info":    "provably safe for every consumer that conformed to the old contract",
+			},
+			Statuses: map[string]string{
+				"covered":      "one or more named changes claim the edit",
+				"waived":       "no change covers the edit and a written reason says why; the category refines it",
+				"non-contract": "the edit cannot affect which payloads are valid (descriptions, examples, extensions)",
+				"uncovered":    "no change and no waiver; the reference implementation fails its build in this state, so the listing normally contains none",
+			},
+			Categories: map[string]string{
+				"open":              "a missing change, with its reason and a suggested id",
+				"resolved-at-usage": "component definitions are compared at their referencing operations, which have their own rows",
+				"covered-as":        "the same document edit is reported under another action",
 			},
 		},
 		SeverityLaw: SeverityLaw{
