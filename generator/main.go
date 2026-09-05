@@ -1,0 +1,194 @@
+// Command generator exports the OpenAPI Changes Model from the oasdiff
+// reference implementation: the vocabulary, the severity law, every named
+// change with its claims, and the coverage of the full edit space.
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"runtime/debug"
+	"sort"
+
+	"github.com/oasdiff/oasdiff/checker"
+	"github.com/oasdiff/oasdiff/checker/coverage"
+	"github.com/oasdiff/oasdiff/checker/localizations"
+	"github.com/oasdiff/oasdiff/checker/rules"
+	"gopkg.in/yaml.v3"
+)
+
+type Model struct {
+	Model         string      `yaml:"model"`
+	Version       string      `yaml:"version"`
+	GeneratedFrom string      `yaml:"generated_from"`
+	Vocabulary    Vocabulary  `yaml:"vocabulary"`
+	SeverityLaw   SeverityLaw `yaml:"severity_law"`
+	Changes       []Change    `yaml:"changes"`
+	// Coverage is the full edit space of an OpenAPI document with each
+	// edit's disposition: covered by named changes, waived with a reason,
+	// or non-contract.
+	Coverage []coverage.Edit `yaml:"coverage"`
+}
+
+type Vocabulary struct {
+	Actions    map[string]string `yaml:"actions"`
+	Directions map[string]string `yaml:"directions"`
+	Effects    map[string]string `yaml:"effects"`
+	Guards     map[string]string `yaml:"guards"`
+	Levels     map[string]string `yaml:"levels"`
+}
+
+type SeverityLaw struct {
+	Description string        `yaml:"description"`
+	Guards      []GuardRule   `yaml:"guards_apply_first"`
+	Verdicts    []VerdictRule `yaml:"verdicts"`
+}
+
+type GuardRule struct {
+	Guard  string `yaml:"guard"`
+	Effect string `yaml:"then"`
+}
+
+type VerdictRule struct {
+	Effect    string `yaml:"effect"`
+	Direction string `yaml:"direction,omitempty"`
+	Level     string `yaml:"level"`
+}
+
+type Change struct {
+	Id          string   `yaml:"id"`
+	Level       string   `yaml:"level"`
+	Direction   string   `yaml:"direction"`
+	Area        string   `yaml:"area"`
+	Kind        string   `yaml:"kind"`
+	Effect      string   `yaml:"effect"`
+	Guards      []string `yaml:"guards,omitempty"`
+	Claims      []string `yaml:"claims"`
+	Description string   `yaml:"description"`
+	Message     string   `yaml:"message"`
+}
+
+func oasdiffVersion() string {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, dep := range info.Deps {
+			if dep.Path == "github.com/oasdiff/oasdiff" {
+				return dep.Version
+			}
+		}
+	}
+	return "unknown"
+}
+
+func main() {
+	out := flag.String("out", "../openapi-changes-model.yaml", "output path")
+	flag.Parse()
+
+	localizer := localizations.New(localizations.LangEn, "")
+	metadata := checker.GetAllRules().Metadata()
+
+	changes := make([]Change, 0, len(metadata))
+	for _, r := range metadata {
+		guards := make([]string, 0, len(r.Guards))
+		for _, g := range r.Guards {
+			guards = append(guards, string(g))
+		}
+		changes = append(changes, Change{
+			Id:          r.Id,
+			Level:       r.Level.String(),
+			Direction:   r.Direction.String(),
+			Area:        r.Area.String(),
+			Kind:        r.Kind.String(),
+			Effect:      r.Effect.String(),
+			Guards:      guards,
+			Claims:      r.Locations,
+			Description: localizer.Get("messages." + r.Id + "-description"),
+			Message:     localizer.Get("messages." + r.Id),
+		})
+	}
+	sort.Slice(changes, func(i, j int) bool { return changes[i].Id < changes[j].Id })
+
+	model := Model{
+		Model:         "OpenAPI Changes Model",
+		Version:       "0.1.0-draft",
+		GeneratedFrom: "oasdiff " + oasdiffVersion(),
+		Vocabulary: Vocabulary{
+			Actions: map[string]string{
+				"add":      "a member is added to a collection (a property, an enum value, a response status)",
+				"remove":   "a member is removed from a collection",
+				"set":      "a field appears where it was absent",
+				"unset":    "a field disappears",
+				"change":   "a field's value is replaced by an incomparable value",
+				"increase": "an ordered field's value grows",
+				"decrease": "an ordered field's value shrinks",
+			},
+			Directions: map[string]string{
+				"request":  "the change concerns what clients send",
+				"response": "the change concerns what clients receive",
+				"none":     "the change concerns neither side of the wire (metadata, lifecycle)",
+			},
+			Effects: map[string]string{
+				"narrows":      "the new contract rejects payloads the previous contract accepted",
+				"widens":       "the new contract accepts payloads the previous contract rejected",
+				"incomparable": "the change both rejects previously valid payloads and accepts previously invalid ones",
+				"unknown":      "the specification does not carry enough information to decide the effect",
+				"none":         "the change cannot affect which payloads are valid",
+				"violation":    "the change breaks a declared lifecycle contract (deprecation, sunset, stability) rather than the wire contract",
+			},
+			Guards: map[string]string{
+				"read-only":   "the changed property is readOnly, so it never appears in requests; request-side effects are nullified",
+				"write-only":  "the changed property is writeOnly, so it never appears in responses; response-side effects are nullified",
+				"sanctioned":  "the removed element was deprecated and its sunset period was honored, so the removal follows the deprecation contract",
+				"non-success": "the affected response status is a non-success status; the responses map does not promise the server returns only the statuses it lists",
+				"has-default": "the changed element declares a default value (declared for audit; does not change the verdict)",
+				"negotiated":  "the element is one the client selects or relies on (a status, media type, or header); its availability is judged with request polarity",
+			},
+			Levels: map[string]string{
+				"error":   "a consumer that conformed to the old contract can stop conforming or fail",
+				"warning": "plausibly breaking, but the specification cannot decide; the finding says what is missing",
+				"info":    "provably safe for every consumer that conformed to the old contract",
+			},
+		},
+		SeverityLaw: SeverityLaw{
+			Description: "A change's level is derived from its effect, its direction, and its guards. " +
+				"Guards apply first, each nullifying or requalifying the effect on the side it speaks about; " +
+				"then the effect and direction decide: narrowing breaks request consumers, widening breaks " +
+				"response consumers, an incomparable change breaks both, and an unknown one is a warning. " +
+				"When a change cannot be proven safe it is reported as breaking.",
+			Guards: []GuardRule{
+				{"read-only", "effect becomes none when direction is request"},
+				{"write-only", "effect becomes none when direction is response"},
+				{"non-success", "effect becomes none"},
+				{"sanctioned", "effect becomes none"},
+				{"negotiated", "direction becomes request"},
+			},
+			Verdicts: []VerdictRule{
+				{Effect: "narrows", Direction: "request", Level: "error"},
+				{Effect: "narrows", Direction: "response", Level: "info"},
+				{Effect: "widens", Direction: "request", Level: "info"},
+				{Effect: "widens", Direction: "response", Level: "error"},
+				{Effect: "incomparable", Level: "error"},
+				{Effect: "violation", Level: "error"},
+				{Effect: "unknown", Level: "warning"},
+				{Effect: "none", Level: "info"},
+			},
+		},
+		Changes:  changes,
+		Coverage: coverage.Analyze(metadata),
+	}
+
+	data, err := yaml.Marshal(model)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	header := "# The OpenAPI Changes Model. Generated from the oasdiff reference implementation;\n" +
+		"# do not edit by hand. See README.md for how to propose a change.\n"
+	if err := os.WriteFile(*out, append([]byte(header), data...), 0o644); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	fmt.Printf("wrote %s: %d changes, %d edits\n", *out, len(changes), len(model.Coverage))
+}
+
+// ensure the law encoded above matches the implementation
+var _ = rules.DeriveLevel

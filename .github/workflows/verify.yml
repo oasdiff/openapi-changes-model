@@ -1,0 +1,21 @@
+name: verify
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  regenerate:
+    name: model matches the generator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: generator/go.mod
+      - name: Regenerate and diff
+        run: |
+          cd generator
+          go run . -out ../openapi-changes-model.yaml
+          cd ..
+          git diff --exit-code openapi-changes-model.yaml
