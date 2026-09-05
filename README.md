@@ -9,7 +9,7 @@ The model is one file, [`openapi-changes-model.yaml`](openapi-changes-model.yaml
 - **681 named changes**, each with its direction, effect, guards, derived severity, human-readable message, and its **claims**: the exact document locations and actions it covers, as `location:action` patterns over the OpenAPI object model.
 - **The full edit space**: 15,255 possible edits, enumerated mechanically from the OpenAPI specification's object model. Every edit is covered by named changes, waived with a written reason, or classified as non-contract (unable to affect which payloads are valid). None are undecided.
 
-See [SPEC.md](SPEC.md) for the concepts in prose.
+See [SPEC.md](SPEC.md) for an explanation of the concepts.
 
 ## Status
 
