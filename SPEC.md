@@ -49,6 +49,10 @@ Every level is derived, never assigned. Guards apply first, each nullifying or r
 
 The asymmetry is deliberate: reporting a safe change as breaking costs a reviewer one look, while reporting a breaking change as safe ships it to production. A change is declared safe only when it is provably safe for every consumer that conformed to the old contract; any gap in that proof resolves to breaking. Where the specification itself lacks the information to decide, the verdict is a warning that says what is missing, never a guess.
 
+## Transitions
+
+Some edits arrive together as one semantic change. Wrapping a schema in `oneOf: [{type: "null"}, X]` to make it nullable is a single decision, but the raw diff shows several edits: the type changed, an enum moved, a `oneOf` appeared. A **transition** names such a shape. At a recognized shape, raw findings of the transition's *claimed kinds* are echoes of the one change and are suppressed; findings of other kinds are independent changes and still report. The transition itself is reported by its listed changes, so nothing is silently dropped: the finding moves from the echoes to the recognition.
+
 ## Coverage dispositions
 
 Every edit in the space has exactly one disposition:
