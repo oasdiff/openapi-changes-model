@@ -4,7 +4,7 @@ model: OpenAPI Changes Model
 version: 0.1.0-draft
 generated_from: oasdiff v1.31.0
 vocabulary:
-    locations: 'A location is a path through the OpenAPI object model, dot-separated, with * standing for a map entry (a path, a method, a media type, a property name) and x-* for a specification extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any request body schema. A claim is location:action[,action...], the edits a change covers; a claim pattern may use ** to cover a location family.'
+    locations: 'A location is a path through the OpenAPI object model, dot-separated, with * standing in for a name the API author chooses (a path, a method, a media type, a property name) and x-* for a specification extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any request body schema. A claim is location:action[,action...], the edits a change covers; a claim pattern may use ** to cover a location family.'
     actions:
         add: a member is added to a collection (a property, an enum value, a response status)
         change: a field's value is replaced by an incomparable value

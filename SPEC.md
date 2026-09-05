@@ -8,7 +8,7 @@ An OpenAPI document declares a contract: which requests are valid and which resp
 
 ## Edits
 
-An **edit** is one syntactic change at one location of the document: a `(location, action)` pair. Locations are paths through the OpenAPI object model (`paths.*.*.requestBody.content.*.schema.maxLength`); the `*` segments stand for map entries (a path, a method, a media type). Actions are:
+An **edit** is one syntactic change at one location of the document: a `(location, action)` pair. Locations are paths through the OpenAPI object model (`paths.*.*.requestBody.content.*.schema.maxLength`); the `*` segments stand in for names the API author chooses (a path, a method, a media type). Actions are:
 
 | action | meaning |
 |---|---|

@@ -122,7 +122,7 @@ func main() {
 		GeneratedFrom: "oasdiff " + oasdiffVersion(),
 		Vocabulary: Vocabulary{
 			Locations: "A location is a path through the OpenAPI object model, dot-separated, with * standing " +
-				"for a map entry (a path, a method, a media type, a property name) and x-* for a specification " +
+				"in for a name the API author chooses (a path, a method, a media type, a property name) and x-* for a specification " +
 				"extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any " +
 				"request body schema. A claim is location:action[,action...], the edits a change covers; a claim " +
 				"pattern may use ** to cover a location family.",
