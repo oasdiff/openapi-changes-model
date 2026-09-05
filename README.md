@@ -26,7 +26,7 @@ The severity law is the part most worth challenging: it is short, explicit, and 
 
 ## Reading the model
 
-Each named change carries `claims`, the edits it covers:
+Each named change carries `claims`, the edits it covers. A claim is a path into the OpenAPI definition plus the action performed there: `paths.*.*.requestBody.content.*.schema.maxLength:decrease` reads as "the `maxLength` keyword of any request body schema, decreased", with `*` standing for a map entry such as a path, a method, or a media type.
 
 ```yaml
 - id: request-property-max-length-decreased
