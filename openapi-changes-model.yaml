@@ -2,7 +2,7 @@
 # do not edit by hand. See README.md for how to propose a change.
 model: OpenAPI Changes Model
 version: 0.1.0-draft
-generated_from: oasdiff v1.31.0
+generated_from: oasdiff v1.31.1-0.20260905155854-e887d0d25541
 vocabulary:
     locations: 'A location is a path through the OpenAPI object model, dot-separated, with * standing in for a name the API author chooses (a path, a method, a media type, a property name) and x-* for a specification extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any request body schema. A claim is location:action[,action...], the edits a change covers; a claim pattern may use ** to cover a location family.'
     actions:
@@ -97,6 +97,100 @@ severity_law:
           level: warning
         - effect: none
           level: info
+transitions:
+    - name: boolean-false-schema
+      description: the schema at a node was replaced by the JSON Schema boolean false, which accepts no instance, or the reverse
+      claimed_kinds:
+        - constraints
+        - existence
+        - requiredness
+        - structure
+        - type
+        - values
+      reported_by:
+        - request-body-schema-became-false
+        - request-body-schema-became-not-false
+        - request-parameter-property-schema-became-false
+        - request-parameter-property-schema-became-not-false
+        - request-parameter-schema-became-false
+        - request-parameter-schema-became-not-false
+        - request-property-schema-became-false
+        - request-property-schema-became-not-false
+        - response-body-schema-became-false
+        - response-body-schema-became-not-false
+        - response-header-schema-became-false
+        - response-header-schema-became-not-false
+        - response-property-schema-became-false
+        - response-property-schema-became-not-false
+    - name: list-of-types
+      description: a single type became a oneOf or anyOf of scalar types, or the reverse
+      claimed_kinds:
+        - structure
+        - type
+      reported_by:
+        - request-body-list-of-types-narrowed
+        - request-body-list-of-types-widened
+        - request-parameter-list-of-types-narrowed
+        - request-parameter-list-of-types-widened
+        - request-parameter-property-list-of-types-narrowed
+        - request-parameter-property-list-of-types-widened
+        - request-property-list-of-types-narrowed
+        - request-property-list-of-types-widened
+        - response-body-list-of-types-narrowed
+        - response-body-list-of-types-widened
+        - response-property-list-of-types-narrowed
+        - response-property-list-of-types-widened
+    - name: null-only-type-change
+      description: 'null was added to or removed from the type set with no other type or format change, the OpenAPI 3.1 type: [string, "null"] form'
+      claimed_kinds:
+        - type
+      reported_by:
+        - request-body-became-not-nullable
+        - request-body-became-nullable
+        - request-parameter-became-not-nullable
+        - request-parameter-became-nullable
+        - request-parameter-property-became-not-nullable
+        - request-parameter-property-became-nullable
+        - request-property-became-not-nullable
+        - request-property-became-nullable
+        - response-body-became-not-nullable
+        - response-body-became-nullable
+        - response-property-became-not-nullable
+        - response-property-became-nullable
+    - name: nullable-wrapping
+      description: 'a schema X became oneOf: [{type: "null"}, X], the OpenAPI 3.1 idiom for making a referenced schema nullable, or the wrapper was removed'
+      claimed_kinds:
+        - constraints
+        - existence
+        - requiredness
+        - structure
+        - type
+        - values
+      reported_by:
+        - request-body-became-not-nullable
+        - request-body-became-nullable
+        - request-parameter-became-not-nullable
+        - request-parameter-became-nullable
+        - request-parameter-property-became-not-nullable
+        - request-parameter-property-became-nullable
+        - request-property-became-not-nullable
+        - request-property-became-nullable
+        - response-body-became-not-nullable
+        - response-body-became-nullable
+        - response-property-became-not-nullable
+        - response-property-became-nullable
+    - name: oneof-wrapping
+      description: a concrete object schema became a oneOf of object alternatives
+      claimed_kinds:
+        - structure
+        - type
+      reported_by:
+        - request-body-wrapped-in-one-of
+        - request-body-wrapped-in-one-of-original-preserved
+        - request-property-one-of-added
+        - response-body-wrapped-in-one-of
+        - response-body-wrapped-in-one-of-original-preserved
+        - response-property-one-of-added
 changes:
     - id: api-deprecated-sunset-missing
       level: error
@@ -54348,35 +54442,35 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-additional-properties-changed
     - location: paths.*.*.parameters.*.schema.additionalProperties
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-additional-properties-set
     - location: paths.*.*.parameters.*.schema.additionalProperties
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-additional-properties-unset
     - location: paths.*.*.parameters.*.schema.allOf.*
       action: add
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-all-of-added
     - location: paths.*.*.parameters.*.schema.allOf.*
       action: remove
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-all-of-removed
     - location: paths.*.*.parameters.*.schema.allowEmptyValue
       action: set
@@ -54393,105 +54487,105 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-any-of-added
     - location: paths.*.*.parameters.*.schema.anyOf.*
       action: remove
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-any-of-removed
     - location: paths.*.*.parameters.*.schema.const
       action: change
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-const-changed
     - location: paths.*.*.parameters.*.schema.const
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-const-set
     - location: paths.*.*.parameters.*.schema.const
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-const-unset
     - location: paths.*.*.parameters.*.schema.contains
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-contains-set
     - location: paths.*.*.parameters.*.schema.contains
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-contains-unset
     - location: paths.*.*.parameters.*.schema.contentEncoding
       action: change
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-content-encoding-changed
     - location: paths.*.*.parameters.*.schema.contentEncoding
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-content-encoding-set
     - location: paths.*.*.parameters.*.schema.contentEncoding
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-content-encoding-unset
     - location: paths.*.*.parameters.*.schema.contentMediaType
       action: change
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-content-media-type-changed
     - location: paths.*.*.parameters.*.schema.contentMediaType
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-content-media-type-set
     - location: paths.*.*.parameters.*.schema.contentMediaType
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-content-media-type-unset
     - location: paths.*.*.parameters.*.schema.contentSchema
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-content-schema-set
     - location: paths.*.*.parameters.*.schema.contentSchema
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-content-schema-unset
     - location: paths.*.*.parameters.*.schema.default
       action: change
@@ -54516,42 +54610,42 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-dependent-required-added
     - location: paths.*.*.parameters.*.schema.dependentRequired.*
       action: remove
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-dependent-required-removed
     - location: paths.*.*.parameters.*.schema.dependentSchemas.*
       action: add
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-dependent-schema-added
     - location: paths.*.*.parameters.*.schema.dependentSchemas.*
       action: remove
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-dependent-schema-removed
     - location: paths.*.*.parameters.*.schema.deprecated
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-deprecated-set
     - location: paths.*.*.parameters.*.schema.deprecated
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-deprecated-unset
     - location: paths.*.*.parameters.*.schema.description
       action: change
@@ -54573,70 +54667,70 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-discriminator-set
     - location: paths.*.*.parameters.*.schema.discriminator
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-discriminator-unset
     - location: paths.*.*.parameters.*.schema.discriminator.mapping.*
       action: add
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-mapping-added
     - location: paths.*.*.parameters.*.schema.discriminator.mapping.*
       action: change
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-mapping-changed
     - location: paths.*.*.parameters.*.schema.discriminator.mapping.*
       action: remove
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-mapping-removed
     - location: paths.*.*.parameters.*.schema.discriminator.mapping.*
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-mapping-set
     - location: paths.*.*.parameters.*.schema.discriminator.mapping.*
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-mapping-unset
     - location: paths.*.*.parameters.*.schema.discriminator.propertyName
       action: change
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-property-name-changed
     - location: paths.*.*.parameters.*.schema.discriminator.propertyName
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-property-name-set
     - location: paths.*.*.parameters.*.schema.discriminator.propertyName
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-property-name-unset
     - location: paths.*.*.parameters.*.schema.discriminator.x-*
       action: add
@@ -54658,14 +54752,14 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-else-set
     - location: paths.*.*.parameters.*.schema.else
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-else-unset
     - location: paths.*.*.parameters.*.schema.enum
       action: add
@@ -54731,7 +54825,7 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-exclusive-maximum-unset
     - location: paths.*.*.parameters.*.schema.exclusiveMinimum
       action: decrease
@@ -54756,7 +54850,7 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-exclusive-minimum-unset
     - location: paths.*.*.parameters.*.schema.externalDocs
       action: set
@@ -54845,42 +54939,42 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-if-set
     - location: paths.*.*.parameters.*.schema.if
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-if-unset
     - location: paths.*.*.parameters.*.schema.items
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-items-set
     - location: paths.*.*.parameters.*.schema.items
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-items-unset
     - location: paths.*.*.parameters.*.schema.maxContains
       action: decrease
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-max-contains-decreased
     - location: paths.*.*.parameters.*.schema.maxContains
       action: increase
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-max-contains-increased
     - location: paths.*.*.parameters.*.schema.maxContains
       action: set
@@ -54947,14 +55041,14 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-max-properties-decreased
     - location: paths.*.*.parameters.*.schema.maxProperties
       action: increase
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-max-properties-increased
     - location: paths.*.*.parameters.*.schema.maxProperties
       action: set
@@ -54997,14 +55091,14 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-min-contains-decreased
     - location: paths.*.*.parameters.*.schema.minContains
       action: increase
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-min-contains-increased
     - location: paths.*.*.parameters.*.schema.minContains
       action: set
@@ -55071,14 +55165,14 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-min-properties-decreased
     - location: paths.*.*.parameters.*.schema.minProperties
       action: increase
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-min-properties-increased
     - location: paths.*.*.parameters.*.schema.minProperties
       action: set
@@ -55121,14 +55215,14 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-multiple-of-decreased
     - location: paths.*.*.parameters.*.schema.multipleOf
       action: increase
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-multiple-of-increased
     - location: paths.*.*.parameters.*.schema.multipleOf
       action: set
@@ -55147,14 +55241,14 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-not-set
     - location: paths.*.*.parameters.*.schema.not
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-not-unset
     - location: paths.*.*.parameters.*.schema.nullable
       action: set
@@ -55175,14 +55269,14 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-one-of-added
     - location: paths.*.*.parameters.*.schema.oneOf.*
       action: remove
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-one-of-removed
     - location: paths.*.*.parameters.*.schema.pattern
       action: change
@@ -55208,28 +55302,28 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-pattern-propertie-added
     - location: paths.*.*.parameters.*.schema.patternProperties.*
       action: remove
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-pattern-propertie-removed
     - location: paths.*.*.parameters.*.schema.prefixItems.*
       action: add
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-prefix-item-added
     - location: paths.*.*.parameters.*.schema.prefixItems.*
       action: remove
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-prefix-item-removed
     - location: paths.*.*.parameters.*.schema.properties.*
       action: add
@@ -55242,35 +55336,35 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-propertie-removed
     - location: paths.*.*.parameters.*.schema.propertyNames
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-property-names-set
     - location: paths.*.*.parameters.*.schema.propertyNames
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-property-names-unset
     - location: paths.*.*.parameters.*.schema.readOnly
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-read-only-set
     - location: paths.*.*.parameters.*.schema.readOnly
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-read-only-unset
     - location: paths.*.*.parameters.*.schema.required
       action: add
@@ -55283,21 +55377,21 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-required-removed
     - location: paths.*.*.parameters.*.schema.then
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-then-set
     - location: paths.*.*.parameters.*.schema.then
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-then-unset
     - location: paths.*.*.parameters.*.schema.title
       action: change
@@ -55348,70 +55442,70 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-unevaluated-items-changed
     - location: paths.*.*.parameters.*.schema.unevaluatedItems
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-unevaluated-items-set
     - location: paths.*.*.parameters.*.schema.unevaluatedItems
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-unevaluated-items-unset
     - location: paths.*.*.parameters.*.schema.unevaluatedProperties
       action: change
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-unevaluated-properties-changed
     - location: paths.*.*.parameters.*.schema.unevaluatedProperties
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-unevaluated-properties-set
     - location: paths.*.*.parameters.*.schema.unevaluatedProperties
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-unevaluated-properties-unset
     - location: paths.*.*.parameters.*.schema.uniqueItems
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-unique-items-set
     - location: paths.*.*.parameters.*.schema.uniqueItems
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-unique-items-unset
     - location: paths.*.*.parameters.*.schema.writeOnly
       action: set
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-write-only-set
     - location: paths.*.*.parameters.*.schema.writeOnly
       action: unset
       polarity: request
       status: waived
       category: open
-      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157, #1159)'
+      reason: 'parameter schemas are checked for type/format, enum, bounds, pattern, nullable, default, and required/property membership; the remaining schema keywords are unchecked (tracked in #1054, #1155, #1156, #1157)'
       suggestedId: request-parameter-write-only-unset
     - location: paths.*.*.parameters.*.schema.x-*
       action: add
@@ -59235,7 +59329,7 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'the version-split boolean/number representation needs its own bound classification before set/unset can be generated; the breaking change directions have rules (tracked in #1222)'
       suggestedId: request-body-exclusive-maximum-unset
     - location: paths.*.*.requestBody.content.*.schema.exclusiveMinimum
       action: decrease
@@ -59264,7 +59358,7 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'the version-split boolean/number representation needs its own bound classification before set/unset can be generated; the breaking change directions have rules (tracked in #1222)'
       suggestedId: request-body-exclusive-minimum-unset
     - location: paths.*.*.requestBody.content.*.schema.externalDocs
       action: set
@@ -59557,7 +59651,7 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'increase/decrease at header scope are unchecked; every other direction has rules (tracked in #1117, #1162)'
       suggestedId: request-body-min-items-decreased
     - location: paths.*.*.requestBody.content.*.schema.minItems
       action: increase
@@ -59613,7 +59707,7 @@ coverage:
       polarity: request
       status: waived
       category: open
-      reason: 'remaining directions and non-body contexts are unchecked; the breaking directions have rules (tracked in #1159, #1171 for the set case)'
+      reason: 'increase/decrease at parameter and header scope are unchecked; set/unset have rules at every scope (tracked in #1117, #1162)'
       suggestedId: request-body-min-properties-decreased
     - location: paths.*.*.requestBody.content.*.schema.minProperties
       action: increase
@@ -63811,7 +63905,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'the version-split boolean/number representation needs its own bound classification before set/unset can be generated; the breaking change directions have rules (tracked in #1222)'
       suggestedId: response-exclusive-maximum-decreased
     - location: paths.*.*.responses.*.content.*.schema.exclusiveMaximum
       action: increase
@@ -63825,14 +63919,14 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'the version-split boolean/number representation needs its own bound classification before set/unset can be generated; the breaking change directions have rules (tracked in #1222)'
       suggestedId: response-exclusive-maximum-set
     - location: paths.*.*.responses.*.content.*.schema.exclusiveMaximum
       action: unset
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'the version-split boolean/number representation needs its own bound classification before set/unset can be generated; the breaking change directions have rules (tracked in #1222)'
       suggestedId: response-exclusive-maximum-unset
     - location: paths.*.*.responses.*.content.*.schema.exclusiveMinimum
       action: decrease
@@ -63846,21 +63940,21 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'the version-split boolean/number representation needs its own bound classification before set/unset can be generated; the breaking change directions have rules (tracked in #1222)'
       suggestedId: response-exclusive-minimum-increased
     - location: paths.*.*.responses.*.content.*.schema.exclusiveMinimum
       action: set
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'the version-split boolean/number representation needs its own bound classification before set/unset can be generated; the breaking change directions have rules (tracked in #1222)'
       suggestedId: response-exclusive-minimum-set
     - location: paths.*.*.responses.*.content.*.schema.exclusiveMinimum
       action: unset
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'the version-split boolean/number representation needs its own bound classification before set/unset can be generated; the breaking change directions have rules (tracked in #1222)'
       suggestedId: response-exclusive-minimum-unset
     - location: paths.*.*.responses.*.content.*.schema.externalDocs
       action: set
@@ -64013,7 +64107,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions (request unset widens, response set/decrease narrow the server''s output) and non-body contexts are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'increase/decrease at header scope are unchecked; every other direction has rules (tracked in #1117, #1162)'
       suggestedId: response-max-items-decreased
     - location: paths.*.*.responses.*.content.*.schema.maxItems
       action: increase
@@ -64041,7 +64135,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'increase/decrease at header scope are unchecked; every other direction has rules (tracked in #1117, #1162)'
       suggestedId: response-max-length-decreased
     - location: paths.*.*.responses.*.content.*.schema.maxLength
       action: increase
@@ -64069,7 +64163,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions and non-body contexts are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'increase/decrease at parameter and header scope are unchecked; set/unset have rules at every scope (tracked in #1117, #1162)'
       suggestedId: response-max-properties-decreased
     - location: paths.*.*.responses.*.content.*.schema.maxProperties
       action: increase
@@ -64097,7 +64191,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions (request unset widens, response set/decrease narrows the server''s output) are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'increase/decrease at header scope are unchecked; every other direction has rules (tracked in #1117, #1162)'
       suggestedId: response-maximum-decreased
     - location: paths.*.*.responses.*.content.*.schema.maximum
       action: increase
@@ -64160,7 +64254,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'increase/decrease at header scope are unchecked; every other direction has rules (tracked in #1117, #1162)'
       suggestedId: response-min-items-increased
     - location: paths.*.*.responses.*.content.*.schema.minItems
       action: set
@@ -64188,7 +64282,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'increase/decrease at header scope are unchecked; every other direction has rules (tracked in #1117, #1162)'
       suggestedId: response-min-length-increased
     - location: paths.*.*.responses.*.content.*.schema.minLength
       action: set
@@ -64216,7 +64310,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions and non-body contexts are unchecked; the breaking directions have rules (tracked in #1159, #1171 for the set case)'
+      reason: 'increase/decrease at parameter and header scope are unchecked; set/unset have rules at every scope (tracked in #1117, #1162)'
       suggestedId: response-min-properties-increased
     - location: paths.*.*.responses.*.content.*.schema.minProperties
       action: set
@@ -64244,7 +64338,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'remaining directions are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: 'increase/decrease at header scope are unchecked; every other direction has rules (tracked in #1117, #1162)'
       suggestedId: response-minimum-increased
     - location: paths.*.*.responses.*.content.*.schema.minimum
       action: set
@@ -64552,7 +64646,7 @@ coverage:
       polarity: response
       status: waived
       category: open
-      reason: 'response set (narrowing the output) and non-body contexts are unchecked; the breaking directions have rules (tracked in #1159)'
+      reason: response set (narrowing the output) and parameter/header scopes are unchecked; a flag rather than an ordered bound, so outside the generated set/unset rules
       suggestedId: response-unique-items-set
     - location: paths.*.*.responses.*.content.*.schema.uniqueItems
       action: unset
