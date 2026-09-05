@@ -27,7 +27,8 @@ A **change** is a named, human-meaningful classification of one or more edits, i
 - **direction**: whether it concerns what clients send (`request`), receive (`response`), or neither;
 - **effect**: what the change does to the set of valid payloads: `narrows`, `widens`, `incomparable`, `none`, `unknown` (the specification cannot decide), or `violation` (a lifecycle contract is broken);
 - **guards**: document states that qualify the verdict (a `readOnly` property never appears in requests; an honored sunset sanctions a removal);
-- **level**: the derived severity.
+- **level**: the derived severity;
+- **area** and **kind**: where the change sits in the OpenAPI object model and which aspect of the contract it touches, for querying and auditing the catalog.
 
 ## The severity law
 
