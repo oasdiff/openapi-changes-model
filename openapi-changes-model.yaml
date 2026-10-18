@@ -2,7 +2,7 @@
 # do not edit by hand. See README.md for how to propose a change.
 model: OpenAPI Changes Model
 version: 0.1.0-draft
-generated_from: oasdiff v1.33.0
+generated_from: oasdiff v1.34.0
 vocabulary:
     locations: 'A location is a path through the OpenAPI object model, dot-separated, with * standing in for a name the API author chooses (a path, a method, a media type, a property name) and x-* for a specification extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any request body schema. A claim is location:action[,action...], the edits a change covers; a claim pattern may use ** to cover a location family.'
     actions:
@@ -387,6 +387,26 @@ changes:
         - paths.*.*.security.*:add
       description: security requirements added to endpoint
       message: the endpoint scheme security %s was added to the API
+    - id: api-security-anonymous-access-added
+      level: info
+      direction: none
+      area: security
+      kind: existence
+      effect: widens
+      claims:
+        - paths.*.*.security.*:add,remove
+      description: endpoint security changed so that unauthenticated requests are accepted
+      message: the endpoint now allows anonymous access
+    - id: api-security-anonymous-access-removed
+      level: error
+      direction: none
+      area: security
+      kind: existence
+      effect: narrows
+      claims:
+        - paths.*.*.security.*:add,remove
+      description: endpoint security changed so that unauthenticated requests are rejected
+      message: the endpoint no longer allows anonymous access and now only accepts %s
     - id: api-security-component-added
       level: info
       direction: none
@@ -397,6 +417,46 @@ changes:
         - components.securitySchemes.*:add
       description: security scheme added in components/securitySchemes
       message: the component security scheme %s was added
+    - id: api-security-component-api-key-in-changed
+      level: error
+      direction: none
+      area: security
+      kind: type
+      effect: incomparable
+      claims:
+        - components.securitySchemes.*.in:set,unset,change
+      description: apiKey location (in) modified in components/securitySchemes
+      message: the component security scheme %s api key location changed from %s to %s
+    - id: api-security-component-api-key-name-changed
+      level: error
+      direction: none
+      area: security
+      kind: type
+      effect: incomparable
+      claims:
+        - components.securitySchemes.*.name:set,unset,change
+      description: apiKey name modified in components/securitySchemes
+      message: the component security scheme %s api key name changed from %s to %s
+    - id: api-security-component-bearer-format-changed
+      level: info
+      direction: none
+      area: security
+      kind: type
+      effect: none
+      claims:
+        - components.securitySchemes.*.bearerFormat:set,unset,change
+      description: bearer format modified in components/securitySchemes
+      message: the component security scheme %s bearer format changed from %s to %s
+    - id: api-security-component-http-scheme-changed
+      level: error
+      direction: none
+      area: security
+      kind: type
+      effect: incomparable
+      claims:
+        - components.securitySchemes.*.scheme:set,unset,change
+      description: http authentication scheme modified in components/securitySchemes
+      message: the component security scheme %s http scheme changed from %s to %s
     - id: api-security-component-oauth-scope-added
       level: info
       direction: none
@@ -447,6 +507,16 @@ changes:
         - components.securitySchemes.*.flows.**.authorizationUrl:set,unset,change
       description: auth URL modified in OAuth flow in components/securitySchemes
       message: the component security scheme %s oauth url changed from %s to %s
+    - id: api-security-component-openid-connect-url-changed
+      level: error
+      direction: none
+      area: security
+      kind: type
+      effect: incomparable
+      claims:
+        - components.securitySchemes.*.openIdConnectUrl:set,unset,change
+      description: OpenID Connect url modified in components/securitySchemes
+      message: the component security scheme %s OpenID Connect url changed from %s to %s
     - id: api-security-component-removed
       level: info
       direction: none
@@ -458,11 +528,11 @@ changes:
       description: security scheme deleted in components/securitySchemes
       message: the component security scheme %s was removed
     - id: api-security-component-type-changed
-      level: info
+      level: error
       direction: none
       area: security
       kind: type
-      effect: none
+      effect: incomparable
       claims:
         - components.securitySchemes.*.type:change
       description: security scheme type modified in components/securitySchemes
@@ -811,6 +881,16 @@ changes:
         - paths.*.*.requestBody.content.*.schema.enum:add
       description: request body restricted to enum
       message: request body was restricted to a list of enum values
+    - id: request-body-became-not-enum
+      level: info
+      direction: request
+      area: schema
+      kind: values
+      effect: widens
+      claims:
+        - paths.*.*.requestBody.content.*.schema.enum:remove
+      description: request body enum removed
+      message: removed the enum constraint from the request body
     - id: request-body-became-not-nullable
       level: error
       direction: request
@@ -1103,6 +1183,16 @@ changes:
         - paths.*.*.requestBody.content.*.schema.else:unset
       description: else subschema removed from request body
       message: removed 'else' subschema from the request body
+    - id: request-body-enum-value-added
+      level: info
+      direction: request
+      area: schema
+      kind: values
+      effect: widens
+      claims:
+        - paths.*.*.requestBody.content.*.schema.enum:add
+      description: request body enum value added
+      message: request body enum value added %s
     - id: request-body-enum-value-removed
       level: error
       direction: request
@@ -2001,9 +2091,7 @@ changes:
       direction: request
       area: schema
       kind: mutability
-      effect: none
-      guards:
-        - read-only
+      effect: widens
       claims:
         - paths.*.*.requestBody.content.*.schema.readOnly:unset
       description: request optional property became not read-only
@@ -2021,13 +2109,11 @@ changes:
       description: request optional property became not write-only
       message: the request optional property %s became not write-only
     - id: request-optional-property-became-read-only
-      level: info
+      level: warning
       direction: request
       area: schema
       kind: mutability
-      effect: none
-      guards:
-        - read-only
+      effect: unknown
       claims:
         - paths.*.*.requestBody.content.*.schema.readOnly:set
       description: request optional property became read-only
@@ -2054,6 +2140,16 @@ changes:
         - paths.*.*.parameters.*.schema.enum:add
       description: request parameter restricted to enum
       message: the %s request parameter %s was restricted to a list of enum values
+    - id: request-parameter-became-not-enum
+      level: info
+      direction: request
+      area: parameters
+      kind: values
+      effect: widens
+      claims:
+        - paths.*.*.parameters.*.schema.enum:remove
+      description: request parameter enum removed
+      message: removed the enum constraint from the %s request parameter %s
     - id: request-parameter-became-not-nullable
       level: error
       direction: request
@@ -2726,6 +2822,16 @@ changes:
         - paths.*.*.parameters.*.schema.pattern:unset
       description: request parameter pattern unset
       message: removed the pattern %s from the %s request parameter %s
+    - id: request-parameter-property-became-not-enum
+      level: info
+      direction: request
+      area: parameters
+      kind: values
+      effect: widens
+      claims:
+        - paths.*.*.parameters.*.schema.enum:remove
+      description: request parameter property enum removed
+      message: removed the enum constraint from the property %s of the %s request parameter %s
     - id: request-parameter-property-became-not-nullable
       level: error
       direction: request
@@ -3046,6 +3152,16 @@ changes:
         - paths.*.*.requestBody.content.*.schema.enum:add
       description: request property restricted to enum
       message: request property %s was restricted to a list of enum values
+    - id: request-property-became-not-enum
+      level: info
+      direction: request
+      area: schema
+      kind: values
+      effect: widens
+      claims:
+        - paths.*.*.requestBody.content.*.schema.enum:remove
+      description: request property enum removed
+      message: removed the enum constraint from the request property %s
     - id: request-property-became-not-nullable
       level: error
       direction: request
@@ -4382,16 +4498,26 @@ changes:
       description: request read-only property min increased
       message: the %s request read-only property's min was increased to %s
     - id: request-required-property-became-not-read-only
+      level: error
+      direction: request
+      area: schema
+      kind: mutability
+      effect: narrows
+      claims:
+        - paths.*.*.requestBody.content.*.schema.readOnly:unset
+      description: request required property became not read-only
+      message: the request required property %s became not read-only
+    - id: request-required-property-became-not-read-only-in-openapi-31
       level: info
       direction: request
       area: schema
       kind: mutability
-      effect: none
+      effect: narrows
       guards:
-        - read-only
+        - required-in-requests
       claims:
         - paths.*.*.requestBody.content.*.schema.readOnly:unset
-      description: request required property became not read-only
+      description: request required property became not read-only in OpenAPI 3.1 or later
       message: the request required property %s became not read-only
     - id: request-required-property-became-not-write-only
       level: info
@@ -4406,13 +4532,11 @@ changes:
       description: request required property became not write-only
       message: the request required property %s became not write-only
     - id: request-required-property-became-read-only
-      level: info
+      level: warning
       direction: request
       area: schema
       kind: mutability
-      effect: none
-      guards:
-        - read-only
+      effect: unknown
       claims:
         - paths.*.*.requestBody.content.*.schema.readOnly:set
       description: request required property became read-only
@@ -6313,6 +6437,36 @@ changes:
         - paths.*.*.responses.*.content.*:remove
       description: response media type removed
       message: removed the media type %s for the response with the status %s
+    - id: response-mediatype-became-enum
+      level: info
+      direction: response
+      area: schema
+      kind: values
+      effect: narrows
+      claims:
+        - paths.*.*.responses.*.content.*.schema.enum:add
+      description: response mediatype restricted to enum
+      message: the response schema %s for the response status %s was restricted to a list of enum values
+    - id: response-mediatype-became-not-enum
+      level: error
+      direction: response
+      area: schema
+      kind: values
+      effect: widens
+      claims:
+        - paths.*.*.responses.*.content.*.schema.enum:remove
+      description: response mediatype enum removed
+      message: removed the enum constraint from the response schema %s for the response status %s
+    - id: response-mediatype-enum-value-added
+      level: error
+      direction: response
+      area: schema
+      kind: values
+      effect: widens
+      claims:
+        - paths.*.*.responses.*.content.*.schema.enum:add
+      description: response mediatype enum value added
+      message: added the new %s enum value to the response schema %s for the response status %s
     - id: response-mediatype-enum-value-removed
       level: info
       direction: response
@@ -6501,6 +6655,26 @@ changes:
         - paths.*.*.responses.*.content.*.schema.anyOf.*:remove
       description: sub-schema removed from anyOf in response property
       message: removed %s from the %s response property `anyOf` list for the response status %s
+    - id: response-property-became-enum
+      level: info
+      direction: response
+      area: schema
+      kind: values
+      effect: narrows
+      claims:
+        - paths.*.*.responses.*.content.*.schema.enum:add
+      description: response property restricted to enum
+      message: the %s response property for the response status %s was restricted to a list of enum values
+    - id: response-property-became-not-enum
+      level: error
+      direction: response
+      area: schema
+      kind: values
+      effect: widens
+      claims:
+        - paths.*.*.responses.*.content.*.schema.enum:remove
+      description: response property enum removed
+      message: removed the enum constraint from the %s response property for the response status %s
     - id: response-property-became-not-nullable
       level: info
       direction: response
@@ -7726,9 +7900,7 @@ changes:
       direction: response
       area: schema
       kind: mutability
-      effect: none
-      guards:
-        - write-only
+      effect: narrows
       claims:
         - paths.*.*.responses.*.content.*.schema.writeOnly:unset
       description: response required property became not write-only
@@ -7746,13 +7918,11 @@ changes:
       description: response required property became read-only
       message: the response required property %s became read-only for the status %s
     - id: response-required-property-became-write-only
-      level: info
+      level: error
       direction: response
       area: schema
       kind: mutability
-      effect: none
-      guards:
-        - write-only
+      effect: widens
       claims:
         - paths.*.*.responses.*.content.*.schema.writeOnly:set
       description: response required property became write-only
@@ -50756,24 +50926,21 @@ coverage:
     - location: components.securitySchemes.*.bearerFormat
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-bearer-format-changed
+      status: covered
+      checks:
+        - api-security-component-bearer-format-changed
     - location: components.securitySchemes.*.bearerFormat
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-bearer-format-set
+      status: covered
+      checks:
+        - api-security-component-bearer-format-changed
     - location: components.securitySchemes.*.bearerFormat
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-bearer-format-unset
+      status: covered
+      checks:
+        - api-security-component-bearer-format-changed
     - location: components.securitySchemes.*.description
       action: change
       polarity: shared
@@ -50794,28 +50961,28 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing the OAuth flows object has no check
       suggestedId: api-security-scheme-flows-set
     - location: components.securitySchemes.*.flows
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing the OAuth flows object has no check
       suggestedId: api-security-scheme-flows-unset
     - location: components.securitySchemes.*.flows.authorizationCode
       action: set
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing an OAuth flow has no check
       suggestedId: api-security-scheme-authorization-code-set
     - location: components.securitySchemes.*.flows.authorizationCode
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing an OAuth flow has no check
       suggestedId: api-security-scheme-authorization-code-unset
     - location: components.securitySchemes.*.flows.authorizationCode.authorizationUrl
       action: change
@@ -50840,21 +51007,21 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-changed
     - location: components.securitySchemes.*.flows.authorizationCode.refreshUrl
       action: set
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-set
     - location: components.securitySchemes.*.flows.authorizationCode.refreshUrl
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-unset
     - location: components.securitySchemes.*.flows.authorizationCode.scopes.*
       action: add
@@ -50878,16 +51045,14 @@ coverage:
       action: set
       polarity: shared
       status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-scope-set
+      category: covered-as
+      reason: a scope appearing or disappearing is the scope add/remove, which is claimed
     - location: components.securitySchemes.*.flows.authorizationCode.scopes.*
       action: unset
       polarity: shared
       status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-scope-unset
+      category: covered-as
+      reason: a scope appearing or disappearing is the scope add/remove, which is claimed
     - location: components.securitySchemes.*.flows.authorizationCode.tokenUrl
       action: change
       polarity: shared
@@ -50926,14 +51091,14 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing an OAuth flow has no check
       suggestedId: api-security-scheme-client-credentials-set
     - location: components.securitySchemes.*.flows.clientCredentials
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing an OAuth flow has no check
       suggestedId: api-security-scheme-client-credentials-unset
     - location: components.securitySchemes.*.flows.clientCredentials.authorizationUrl
       action: change
@@ -50958,21 +51123,21 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-changed
     - location: components.securitySchemes.*.flows.clientCredentials.refreshUrl
       action: set
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-set
     - location: components.securitySchemes.*.flows.clientCredentials.refreshUrl
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-unset
     - location: components.securitySchemes.*.flows.clientCredentials.scopes.*
       action: add
@@ -50996,16 +51161,14 @@ coverage:
       action: set
       polarity: shared
       status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-scope-set
+      category: covered-as
+      reason: a scope appearing or disappearing is the scope add/remove, which is claimed
     - location: components.securitySchemes.*.flows.clientCredentials.scopes.*
       action: unset
       polarity: shared
       status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-scope-unset
+      category: covered-as
+      reason: a scope appearing or disappearing is the scope add/remove, which is claimed
     - location: components.securitySchemes.*.flows.clientCredentials.tokenUrl
       action: change
       polarity: shared
@@ -51044,14 +51207,14 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing an OAuth flow has no check
       suggestedId: api-security-scheme-implicit-set
     - location: components.securitySchemes.*.flows.implicit
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing an OAuth flow has no check
       suggestedId: api-security-scheme-implicit-unset
     - location: components.securitySchemes.*.flows.implicit.authorizationUrl
       action: change
@@ -51076,21 +51239,21 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-changed
     - location: components.securitySchemes.*.flows.implicit.refreshUrl
       action: set
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-set
     - location: components.securitySchemes.*.flows.implicit.refreshUrl
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-unset
     - location: components.securitySchemes.*.flows.implicit.scopes.*
       action: add
@@ -51114,16 +51277,14 @@ coverage:
       action: set
       polarity: shared
       status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-scope-set
+      category: covered-as
+      reason: a scope appearing or disappearing is the scope add/remove, which is claimed
     - location: components.securitySchemes.*.flows.implicit.scopes.*
       action: unset
       polarity: shared
       status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-scope-unset
+      category: covered-as
+      reason: a scope appearing or disappearing is the scope add/remove, which is claimed
     - location: components.securitySchemes.*.flows.implicit.tokenUrl
       action: change
       polarity: shared
@@ -51162,14 +51323,14 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing an OAuth flow has no check
       suggestedId: api-security-scheme-password-set
     - location: components.securitySchemes.*.flows.password
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: adding or removing an OAuth flow has no check
       suggestedId: api-security-scheme-password-unset
     - location: components.securitySchemes.*.flows.password.authorizationUrl
       action: change
@@ -51194,21 +51355,21 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-changed
     - location: components.securitySchemes.*.flows.password.refreshUrl
       action: set
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-set
     - location: components.securitySchemes.*.flows.password.refreshUrl
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: OAuth refresh URL changes have no check
       suggestedId: api-security-scheme-refresh-url-unset
     - location: components.securitySchemes.*.flows.password.scopes.*
       action: add
@@ -51232,16 +51393,14 @@ coverage:
       action: set
       polarity: shared
       status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-scope-set
+      category: covered-as
+      reason: a scope appearing or disappearing is the scope add/remove, which is claimed
     - location: components.securitySchemes.*.flows.password.scopes.*
       action: unset
       polarity: shared
       status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-scope-unset
+      category: covered-as
+      reason: a scope appearing or disappearing is the scope add/remove, which is claimed
     - location: components.securitySchemes.*.flows.password.tokenUrl
       action: change
       polarity: shared
@@ -51293,87 +51452,75 @@ coverage:
     - location: components.securitySchemes.*.in
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-in-changed
+      status: covered
+      checks:
+        - api-security-component-api-key-in-changed
     - location: components.securitySchemes.*.in
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-in-set
+      status: covered
+      checks:
+        - api-security-component-api-key-in-changed
     - location: components.securitySchemes.*.in
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-in-unset
+      status: covered
+      checks:
+        - api-security-component-api-key-in-changed
     - location: components.securitySchemes.*.name
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-name-changed
+      status: covered
+      checks:
+        - api-security-component-api-key-name-changed
     - location: components.securitySchemes.*.name
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-name-set
+      status: covered
+      checks:
+        - api-security-component-api-key-name-changed
     - location: components.securitySchemes.*.name
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-name-unset
+      status: covered
+      checks:
+        - api-security-component-api-key-name-changed
     - location: components.securitySchemes.*.openIdConnectUrl
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-open-id-connect-url-changed
+      status: covered
+      checks:
+        - api-security-component-openid-connect-url-changed
     - location: components.securitySchemes.*.openIdConnectUrl
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-open-id-connect-url-set
+      status: covered
+      checks:
+        - api-security-component-openid-connect-url-changed
     - location: components.securitySchemes.*.openIdConnectUrl
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-open-id-connect-url-unset
+      status: covered
+      checks:
+        - api-security-component-openid-connect-url-changed
     - location: components.securitySchemes.*.scheme
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-changed
+      status: covered
+      checks:
+        - api-security-component-http-scheme-changed
     - location: components.securitySchemes.*.scheme
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-set
+      status: covered
+      checks:
+        - api-security-component-http-scheme-changed
     - location: components.securitySchemes.*.scheme
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
-      suggestedId: api-security-scheme-unset
+      status: covered
+      checks:
+        - api-security-component-http-scheme-changed
     - location: components.securitySchemes.*.type
       action: change
       polarity: shared
@@ -51385,14 +51532,14 @@ coverage:
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: type is required, so it is set or unset only where the scheme is invalid on one side; no check reports that
       suggestedId: api-security-scheme-type-set
     - location: components.securitySchemes.*.type
       action: unset
       polarity: shared
       status: waived
       category: open
-      reason: 'scheme fields beyond type, flow URLs, and scopes (apiKey name and in, http scheme, bearerFormat, openIdConnectUrl) have no checks (tracked in #1175)'
+      reason: type is required, so it is set or unset only where the scheme is invalid on one side; no check reports that
       suggestedId: api-security-scheme-type-unset
     - location: components.securitySchemes.*.x-*
       action: add
@@ -55515,7 +55662,9 @@ coverage:
       polarity: request
       status: covered
       checks:
+        - request-parameter-became-not-enum
         - request-parameter-enum-value-removed
+        - request-parameter-property-became-not-enum
         - request-parameter-property-enum-value-removed
     - location: paths.*.*.parameters.*.schema.example
       action: change
@@ -59997,6 +60146,7 @@ coverage:
       status: covered
       checks:
         - request-body-became-enum
+        - request-body-enum-value-added
         - request-property-became-enum
         - request-property-enum-value-added
     - location: paths.*.*.requestBody.content.*.schema.enum
@@ -60004,7 +60154,9 @@ coverage:
       polarity: request
       status: covered
       checks:
+        - request-body-became-not-enum
         - request-body-enum-value-removed
+        - request-property-became-not-enum
         - request-property-enum-value-removed
         - request-read-only-property-enum-value-removed
     - location: paths.*.*.requestBody.content.*.schema.example
@@ -60654,6 +60806,7 @@ coverage:
       checks:
         - request-optional-property-became-not-read-only
         - request-required-property-became-not-read-only
+        - request-required-property-became-not-read-only-in-openapi-31
     - location: paths.*.*.requestBody.content.*.schema.required
       action: add
       polarity: request
@@ -64596,6 +64749,9 @@ coverage:
       polarity: response
       status: covered
       checks:
+        - response-mediatype-became-enum
+        - response-mediatype-enum-value-added
+        - response-property-became-enum
         - response-property-enum-value-added
         - response-write-only-property-enum-value-added
     - location: paths.*.*.responses.*.content.*.schema.enum
@@ -64603,7 +64759,9 @@ coverage:
       polarity: response
       status: covered
       checks:
+        - response-mediatype-became-not-enum
         - response-mediatype-enum-value-removed
+        - response-property-became-not-enum
         - response-property-enum-value-removed
     - location: paths.*.*.responses.*.content.*.schema.example
       action: change
@@ -70231,11 +70389,15 @@ coverage:
       status: covered
       checks:
         - api-security-added
+        - api-security-anonymous-access-added
+        - api-security-anonymous-access-removed
     - location: paths.*.*.security.*
       action: remove
       polarity: document
       status: covered
       checks:
+        - api-security-anonymous-access-added
+        - api-security-anonymous-access-removed
         - api-security-removed
     - location: paths.*.*.security.*.*
       action: add
