@@ -2,7 +2,7 @@
 # do not edit by hand. See README.md for how to propose a change.
 model: OpenAPI Changes Model
 version: 0.1.0-draft
-generated_from: oasdiff v1.34.0
+generated_from: oasdiff v1.35.0
 vocabulary:
     locations: 'A location is a path through the OpenAPI object model, dot-separated, with * standing in for a name the API author chooses (a path, a method, a media type, a property name) and x-* for a specification extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any request body schema. A claim is location:action[,action...], the edits a change covers; a claim pattern may use ** to cover a location family.'
     actions:
@@ -457,6 +457,16 @@ changes:
         - components.securitySchemes.*.scheme:set,unset,change
       description: http authentication scheme modified in components/securitySchemes
       message: the component security scheme %s http scheme changed from %s to %s
+    - id: api-security-component-oauth-refresh-url-changed
+      level: warning
+      direction: none
+      area: security
+      kind: type
+      effect: unknown
+      claims:
+        - components.securitySchemes.*.flows.**.refreshUrl:set,unset,change
+      description: refresh URL modified in OAuth flow in components/securitySchemes
+      message: the component security scheme %s oauth %s flow refresh url changed from %s to %s
     - id: api-security-component-oauth-scope-added
       level: info
       direction: none
@@ -466,7 +476,7 @@ changes:
       claims:
         - components.securitySchemes.*.flows.**.scopes.*:add
       description: scope added to OAuth flow in components/securitySchemes
-      message: the component security scheme %s oauth scope %s was added
+      message: the component security scheme %s oauth %s flow scope %s was added
     - id: api-security-component-oauth-scope-changed
       level: info
       direction: none
@@ -476,7 +486,7 @@ changes:
       claims:
         - components.securitySchemes.*.flows.**.scopes.*:change
       description: scope modified in OAuth flow in components/securitySchemes
-      message: the component security scheme %s oauth scope %s was updated from %s to %s
+      message: the component security scheme %s oauth %s flow scope %s was updated from %s to %s
     - id: api-security-component-oauth-scope-removed
       level: info
       direction: none
@@ -486,33 +496,33 @@ changes:
       claims:
         - components.securitySchemes.*.flows.**.scopes.*:remove
       description: scope deleted from OAuth flow in components/securitySchemes
-      message: the component security scheme %s oauth scope %s was removed
+      message: the component security scheme %s oauth %s flow scope %s was removed
     - id: api-security-component-oauth-token-url-changed
-      level: info
+      level: warning
       direction: none
       area: security
       kind: type
-      effect: none
+      effect: unknown
       claims:
         - components.securitySchemes.*.flows.**.tokenUrl:set,unset,change
       description: token URL modified in OAuth flow in components/securitySchemes
-      message: the component security scheme %s oauth token url changed from %s to %s
+      message: the component security scheme %s oauth %s flow token url changed from %s to %s
     - id: api-security-component-oauth-url-changed
-      level: info
+      level: warning
       direction: none
       area: security
       kind: type
-      effect: none
+      effect: unknown
       claims:
         - components.securitySchemes.*.flows.**.authorizationUrl:set,unset,change
       description: auth URL modified in OAuth flow in components/securitySchemes
-      message: the component security scheme %s oauth url changed from %s to %s
+      message: the component security scheme %s oauth %s flow authorization url changed from %s to %s
     - id: api-security-component-openid-connect-url-changed
-      level: error
+      level: warning
       direction: none
       area: security
       kind: type
-      effect: incomparable
+      effect: unknown
       claims:
         - components.securitySchemes.*.openIdConnectUrl:set,unset,change
       description: OpenID Connect url modified in components/securitySchemes
@@ -4227,6 +4237,28 @@ changes:
         - paths.*.*.requestBody.content.*.schema.properties.*:remove
       description: request property removed
       message: removed the request property %s
+    - id: request-property-removed-before-sunset
+      level: error
+      direction: request
+      area: schema
+      kind: existence
+      effect: violation
+      claims:
+        - paths.*.*.requestBody.content.*.schema.properties.*:remove
+      description: request property removed before sunset date
+      message: removed the request property %s before the sunset date %s
+    - id: request-property-removed-with-deprecation
+      level: info
+      direction: request
+      area: schema
+      kind: existence
+      effect: unknown
+      guards:
+        - sanctioned
+      claims:
+        - paths.*.*.requestBody.content.*.schema.properties.*:remove
+      description: request property removed after deprecation
+      message: removed the deprecated request property %s
     - id: request-property-schema-became-false
       level: error
       direction: request
@@ -7937,6 +7969,28 @@ changes:
         - paths.*.*.responses.*.content.*.schema.properties.*:remove
       description: response required property removed
       message: removed the required property %s from the response with the %s status
+    - id: response-required-property-removed-before-sunset
+      level: error
+      direction: response
+      area: schema
+      kind: existence
+      effect: violation
+      claims:
+        - paths.*.*.responses.*.content.*.schema.properties.*:remove
+      description: response required property removed before sunset date
+      message: removed the required property %s from the response with the %s status before the sunset date %s
+    - id: response-required-property-removed-with-deprecation
+      level: info
+      direction: response
+      area: schema
+      kind: existence
+      effect: widens
+      guards:
+        - sanctioned
+      claims:
+        - paths.*.*.responses.*.content.*.schema.properties.*:remove
+      description: response required property removed after deprecation
+      message: removed the deprecated required property %s from the response with the %s status
     - id: response-required-write-only-property-added
       level: info
       direction: response
@@ -51005,24 +51059,21 @@ coverage:
     - location: components.securitySchemes.*.flows.authorizationCode.refreshUrl
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-changed
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.authorizationCode.refreshUrl
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-set
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.authorizationCode.refreshUrl
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-unset
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.authorizationCode.scopes.*
       action: add
       polarity: shared
@@ -51121,24 +51172,21 @@ coverage:
     - location: components.securitySchemes.*.flows.clientCredentials.refreshUrl
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-changed
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.clientCredentials.refreshUrl
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-set
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.clientCredentials.refreshUrl
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-unset
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.clientCredentials.scopes.*
       action: add
       polarity: shared
@@ -51237,24 +51285,21 @@ coverage:
     - location: components.securitySchemes.*.flows.implicit.refreshUrl
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-changed
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.implicit.refreshUrl
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-set
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.implicit.refreshUrl
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-unset
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.implicit.scopes.*
       action: add
       polarity: shared
@@ -51353,24 +51398,21 @@ coverage:
     - location: components.securitySchemes.*.flows.password.refreshUrl
       action: change
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-changed
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.password.refreshUrl
       action: set
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-set
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.password.refreshUrl
       action: unset
       polarity: shared
-      status: waived
-      category: open
-      reason: OAuth refresh URL changes have no check
-      suggestedId: api-security-scheme-refresh-url-unset
+      status: covered
+      checks:
+        - api-security-component-oauth-refresh-url-changed
     - location: components.securitySchemes.*.flows.password.scopes.*
       action: add
       polarity: shared
@@ -60778,6 +60820,8 @@ coverage:
       status: covered
       checks:
         - request-property-removed
+        - request-property-removed-before-sunset
+        - request-property-removed-with-deprecation
     - location: paths.*.*.requestBody.content.*.schema.propertyNames
       action: set
       polarity: request
@@ -65381,6 +65425,8 @@ coverage:
         - response-optional-property-removed
         - response-optional-write-only-property-removed
         - response-required-property-removed
+        - response-required-property-removed-before-sunset
+        - response-required-property-removed-with-deprecation
         - response-required-write-only-property-removed
     - location: paths.*.*.responses.*.content.*.schema.propertyNames
       action: set
