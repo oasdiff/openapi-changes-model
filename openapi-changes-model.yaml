@@ -2,7 +2,7 @@
 # do not edit by hand. See README.md for how to propose a change.
 model: OpenAPI Changes Model
 version: 0.1.0-draft
-generated_from: oasdiff v1.36.0
+generated_from: oasdiff v1.37.0
 vocabulary:
     locations: 'A location is a path through the OpenAPI object model, dot-separated, with * standing in for a name the API author chooses (a path, a method, a media type, a property name) and x-* for a specification extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any request body schema. A claim is location:action[,action...], the edits a change covers; a claim pattern may use ** to cover a location family.'
     actions:
@@ -212,7 +212,7 @@ changes:
         - paths.*.*.deprecated:set
         - paths.*.*.x-*:add,change
       description: endpoint deprecated with invalid sunset date
-      message: 'failed to parse sunset date: %v'
+      message: 'sunset date doesn''t conform with RFC3339: %v'
     - id: api-global-security-added
       level: info
       direction: none
@@ -262,7 +262,7 @@ changes:
       claims:
         - paths.*.*.x-*:add,change
       description: invalid stability level
-      message: 'failed to parse stability level: %v'
+      message: stability level %s is not one of %s, %s, %s or %s
     - id: api-major-version-not-bumped
       level: info
       direction: none
@@ -282,7 +282,7 @@ changes:
       claims:
         - paths.*.*.operationId:set,change
       description: operation ID added to an endpoint
-      message: api operation id %s was added
+      message: API operation id %s was added
     - id: api-operation-id-removed
       level: info
       direction: none
@@ -292,7 +292,7 @@ changes:
       claims:
         - paths.*.*.operationId:unset,change
       description: operation ID deleted from an endpoint
-      message: api operation id %s removed and replaced with %s
+      message: API operation id %s removed and replaced with %s
     - id: api-path-removed-before-sunset
       level: error
       direction: none
@@ -302,7 +302,7 @@ changes:
       claims:
         - paths.*:remove
       description: path and endpoint deleted before sunset date
-      message: api path removed before the sunset date %s
+      message: API path removed before the sunset date %s
     - id: api-path-removed-with-deprecation
       level: info
       direction: none
@@ -314,7 +314,7 @@ changes:
       claims:
         - paths.*:remove
       description: path and endpoint deleted after deprecation
-      message: api path removed with deprecation
+      message: API path removed with deprecation
     - id: api-path-removed-without-deprecation
       level: error
       direction: none
@@ -324,7 +324,7 @@ changes:
       claims:
         - paths.*:remove
       description: path and endpoint deleted without deprecation
-      message: api path removed without deprecation
+      message: API path removed without deprecation
     - id: api-path-sunset-parse
       level: error
       direction: none
@@ -334,7 +334,7 @@ changes:
       claims:
         - paths.*:remove
       description: path and endpoint deleted with invalid or missing sunset date
-      message: 'failed to parse sunset date: %v'
+      message: 'sunset date doesn''t conform with RFC3339: %v'
     - id: api-removed-before-sunset
       level: error
       direction: none
@@ -344,7 +344,7 @@ changes:
       claims:
         - paths.*.*:remove
       description: endpoint deleted before sunset date
-      message: api removed before the sunset date %s
+      message: API removed before the sunset date %s
     - id: api-removed-with-deprecation
       level: info
       direction: none
@@ -356,7 +356,7 @@ changes:
       claims:
         - paths.*.*:remove
       description: endpoint deleted after deprecation
-      message: api removed with deprecation
+      message: API removed with deprecation
     - id: api-removed-without-deprecation
       level: error
       direction: none
@@ -366,7 +366,7 @@ changes:
       claims:
         - paths.*.*:remove
       description: endpoint deleted without deprecation
-      message: api removed without deprecation
+      message: API removed without deprecation
     - id: api-schema-removed
       level: info
       direction: none
@@ -426,7 +426,7 @@ changes:
       claims:
         - components.securitySchemes.*.in:set,unset,change
       description: apiKey location (in) modified in components/securitySchemes
-      message: the component security scheme %s api key location changed from %s to %s
+      message: the component security scheme %s API key location changed from %s to %s
     - id: api-security-component-api-key-name-changed
       level: error
       direction: none
@@ -436,7 +436,7 @@ changes:
       claims:
         - components.securitySchemes.*.name:set,unset,change
       description: apiKey name modified in components/securitySchemes
-      message: the component security scheme %s api key name changed from %s to %s
+      message: the component security scheme %s API key name changed from %s to %s
     - id: api-security-component-bearer-format-changed
       level: info
       direction: none
@@ -597,6 +597,16 @@ changes:
         - paths.*.*.x-*:add,change
       description: endpoint stability level increased
       message: endpoint stability level increased from %s to %s
+    - id: api-sunset-date-changed-earlier
+      level: error
+      direction: none
+      area: paths
+      kind: lifecycle
+      effect: violation
+      claims:
+        - paths.*.*.x-*:change
+      description: sunset date moved earlier than the one clients were given
+      message: API sunset date changed to an earlier date, from %s to %s
     - id: api-sunset-date-changed-too-small
       level: error
       direction: none
@@ -606,7 +616,7 @@ changes:
       claims:
         - paths.*.*.x-*:change
       description: modified sunset date doesn't meet min required deprecation days
-      message: api sunset date changed to an earlier date, from %s to %s, new sunset date must be not earlier than %s and at least %s days from now
+      message: API sunset date changed to an earlier date, from %s to %s, new sunset date must be not earlier than %s and at least %s days from now
     - id: api-sunset-date-too-small
       level: error
       direction: none
@@ -627,7 +637,7 @@ changes:
       claims:
         - paths.*.*.tags:add
       description: endpoint tag added
-      message: api tag %s added
+      message: API tag %s added
     - id: api-tag-removed
       level: info
       direction: none
@@ -637,7 +647,7 @@ changes:
       claims:
         - paths.*.*.tags:remove
       description: endpoint tag deleted
-      message: api tag %s removed
+      message: API tag %s removed
     - id: api-version-decreased
       level: info
       direction: none
@@ -3019,6 +3029,16 @@ changes:
         - paths.*.*.parameters.*.schema.type:add
       description: request parameter schema is no longer the boolean `false`
       message: the schema of the %s request parameter %s is no longer `false` and accepts values again
+    - id: request-parameter-sunset-date-changed-earlier
+      level: error
+      direction: request
+      area: parameters
+      kind: lifecycle
+      effect: violation
+      claims:
+        - paths.*.*.parameters.*.x-*:change
+      description: request parameter sunset date moved earlier than the one clients were given
+      message: '%s request parameter %s sunset date changed to an earlier date, from %s to %s'
     - id: request-parameter-sunset-date-changed-too-small
       level: error
       direction: request
@@ -3059,7 +3079,7 @@ changes:
       claims:
         - paths.*.*.parameters.*:remove
       description: request parameter deprecated with invalid sunset date
-      message: 'failed to parse sunset date for the %s request parameter %s: %v'
+      message: 'sunset date of the %s request parameter %s doesn''t conform with RFC3339: %v'
     - id: request-parameter-type-changed
       level: error
       direction: request
@@ -3416,7 +3436,7 @@ changes:
         - paths.*.*.requestBody.content.*.schema.deprecated:set
         - paths.*.*.requestBody.content.*.schema.x-*:add,change
       description: request property deprecated with invalid sunset date
-      message: 'request property %s deprecated with invalid sunset date: %s'
+      message: 'request property %s deprecated with a sunset date that doesn''t conform with RFC3339: %s'
     - id: request-property-deprecated-sunset-missing
       level: error
       direction: request
@@ -4299,6 +4319,26 @@ changes:
         - paths.*.*.requestBody.content.*.schema.x-*:add,change
       description: request property stability level increased
       message: request property %s stability level increased from %s to %s
+    - id: request-property-sunset-date-changed-earlier
+      level: error
+      direction: request
+      area: schema
+      kind: lifecycle
+      effect: violation
+      claims:
+        - paths.*.*.requestBody.content.*.schema.x-*:change
+      description: request property sunset date moved earlier than the one clients were given
+      message: request property %s sunset date changed to an earlier date, from %s to %s
+    - id: request-property-sunset-date-changed-too-small
+      level: error
+      direction: request
+      area: schema
+      kind: lifecycle
+      effect: violation
+      claims:
+        - paths.*.*.requestBody.content.*.schema.x-*:change
+      description: request property sunset date moved below min required deprecation days
+      message: request property %s sunset date changed to an earlier date, from %s to %s, new sunset date must be not earlier than %s and at least %s days from now
     - id: request-property-sunset-date-too-small
       level: error
       direction: request
@@ -4310,6 +4350,16 @@ changes:
         - paths.*.*.requestBody.content.*.schema.x-*:add,change
       description: deprecated request property sunset before min required deprecation days
       message: request property %s sunset date %s is too small, must be at least %s days from now
+    - id: request-property-sunset-deleted
+      level: error
+      direction: request
+      area: schema
+      kind: lifecycle
+      effect: violation
+      claims:
+        - paths.*.*.requestBody.content.*.schema.x-*:remove
+      description: request property sunset date deleted while still deprecated
+      message: request property %s sunset date deleted, but deprecated=true kept
     - id: request-property-then-added
       level: error
       direction: request
@@ -6939,7 +6989,7 @@ changes:
         - paths.*.*.responses.*.content.*.schema.deprecated:set
         - paths.*.*.responses.*.content.*.schema.x-*:add,change
       description: response property deprecated with invalid sunset date
-      message: 'response property %s deprecated with invalid sunset date: %s'
+      message: 'response property %s deprecated with a sunset date that doesn''t conform with RFC3339: %s'
     - id: response-property-deprecated-sunset-missing
       level: error
       direction: response
@@ -7780,6 +7830,26 @@ changes:
         - paths.*.*.responses.*.content.*.schema.x-*:add,change
       description: response property stability level increased
       message: response property %s stability level increased from %s to %s
+    - id: response-property-sunset-date-changed-earlier
+      level: error
+      direction: response
+      area: schema
+      kind: lifecycle
+      effect: violation
+      claims:
+        - paths.*.*.responses.*.content.*.schema.x-*:change
+      description: response property sunset date moved earlier than the one clients were given
+      message: response property %s sunset date changed to an earlier date, from %s to %s
+    - id: response-property-sunset-date-changed-too-small
+      level: error
+      direction: response
+      area: schema
+      kind: lifecycle
+      effect: violation
+      claims:
+        - paths.*.*.responses.*.content.*.schema.x-*:change
+      description: response property sunset date moved below min required deprecation days
+      message: response property %s sunset date changed to an earlier date, from %s to %s, new sunset date must be not earlier than %s and at least %s days from now
     - id: response-property-sunset-date-too-small
       level: error
       direction: response
@@ -7791,6 +7861,16 @@ changes:
         - paths.*.*.responses.*.content.*.schema.x-*:add,change
       description: deprecated response property sunset before min required deprecation days
       message: response property %s sunset date %s is too small, must be at least %s days from now
+    - id: response-property-sunset-deleted
+      level: error
+      direction: response
+      area: schema
+      kind: lifecycle
+      effect: violation
+      claims:
+        - paths.*.*.responses.*.content.*.schema.x-*:remove
+      description: response property sunset date deleted while still deprecated
+      message: response property %s sunset date deleted, but deprecated=true kept
     - id: response-property-then-added
       level: info
       direction: response
@@ -8084,7 +8164,7 @@ changes:
       claims:
         - paths.*.*.x-*:remove
       description: sunset deleted
-      message: api sunset date deleted, but deprecated=true kept
+      message: API sunset date deleted, but deprecated=true kept
     - id: webhook-added
       level: info
       direction: none
@@ -56566,6 +56646,7 @@ coverage:
       polarity: request
       status: covered
       checks:
+        - request-parameter-sunset-date-changed-earlier
         - request-parameter-sunset-date-changed-too-small
         - request-parameter-sunset-date-too-small
     - location: paths.*.*.parameters.*.x-*
@@ -61012,13 +61093,16 @@ coverage:
         - request-property-deprecated-sunset-invalid
         - request-property-stability-decreased
         - request-property-stability-increased
+        - request-property-sunset-date-changed-earlier
+        - request-property-sunset-date-changed-too-small
         - request-property-sunset-date-too-small
         - request-property-x-extensible-enum-value-removed
     - location: paths.*.*.requestBody.content.*.schema.x-*
       action: remove
       polarity: request
-      status: non-contract
-      reason: specification extension
+      status: covered
+      checks:
+        - request-property-sunset-deleted
     - location: paths.*.*.requestBody.content.*.schema.xml
       action: set
       polarity: request
@@ -65620,12 +65704,15 @@ coverage:
         - response-property-deprecated-sunset-invalid
         - response-property-stability-decreased
         - response-property-stability-increased
+        - response-property-sunset-date-changed-earlier
+        - response-property-sunset-date-changed-too-small
         - response-property-sunset-date-too-small
     - location: paths.*.*.responses.*.content.*.schema.x-*
       action: remove
       polarity: response
-      status: non-contract
-      reason: specification extension
+      status: covered
+      checks:
+        - response-property-sunset-deleted
     - location: paths.*.*.responses.*.content.*.schema.xml
       action: set
       polarity: response
@@ -70623,6 +70710,7 @@ coverage:
         - api-invalid-stability-level
         - api-stability-decreased
         - api-stability-increased
+        - api-sunset-date-changed-earlier
         - api-sunset-date-changed-too-small
         - api-sunset-date-too-small
     - location: paths.*.*.x-*
