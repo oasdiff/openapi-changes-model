@@ -3,13 +3,12 @@ module github.com/oasdiff/openapi-changes-model/generator
 go 1.26.2
 
 require (
-	github.com/oasdiff/oasdiff v1.37.0
+	github.com/oasdiff/oasdiff v1.38.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
 	cloud.google.com/go v0.123.0 // indirect
-	github.com/TwiN/go-color v1.4.1 // indirect
 	github.com/getkin/kin-openapi v0.153.0 // indirect
 	github.com/go-openapi/jsonpointer v1.0.2 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
