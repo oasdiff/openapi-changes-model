@@ -2,7 +2,7 @@
 # do not edit by hand. See README.md for how to propose a change.
 model: OpenAPI Changes Model
 version: 0.1.0-draft
-generated_from: oasdiff v1.40.0
+generated_from: oasdiff v1.41.0
 vocabulary:
     locations: 'A location is a path through the OpenAPI object model, dot-separated, with * standing in for a name the API author chooses (a path, a method, a media type, a property name) and x-* for a specification extension: paths.*.*.requestBody.content.*.schema.maxLength names the maxLength keyword of any request body schema. A claim is location:action[,action...], the edits a change covers; a claim pattern may use ** to cover a location family.'
     actions:
@@ -1823,6 +1823,26 @@ changes:
         - paths.*.*.requestBody.content.*.schema.multipleOf:unset
       description: request body multipleOf unset
       message: the request's body multipleOf was unset from %s
+    - id: request-body-not-added
+      level: error
+      direction: request
+      area: schema
+      kind: structure
+      effect: narrows
+      claims:
+        - paths.*.*.requestBody.content.*.schema.not:set
+      description: not constraint added to request body
+      message: added 'not' constraint to the request body
+    - id: request-body-not-removed
+      level: info
+      direction: request
+      area: schema
+      kind: structure
+      effect: widens
+      claims:
+        - paths.*.*.requestBody.content.*.schema.not:unset
+      description: not constraint removed from request body
+      message: removed 'not' constraint from the request body
     - id: request-body-one-of-added
       level: info
       direction: request
@@ -4097,6 +4117,26 @@ changes:
         - paths.*.*.requestBody.content.*.schema.multipleOf:unset
       description: request property multipleOf unset
       message: the %s request property's multipleOf was unset from %s
+    - id: request-property-not-added
+      level: error
+      direction: request
+      area: schema
+      kind: structure
+      effect: narrows
+      claims:
+        - paths.*.*.requestBody.content.*.schema.not:set
+      description: not constraint added to request property
+      message: added 'not' constraint to the request property %s
+    - id: request-property-not-removed
+      level: info
+      direction: request
+      area: schema
+      kind: structure
+      effect: widens
+      claims:
+        - paths.*.*.requestBody.content.*.schema.not:unset
+      description: not constraint removed from request property
+      message: removed 'not' constraint from the request property %s
     - id: request-property-one-of-added
       level: info
       direction: request
@@ -5569,6 +5609,26 @@ changes:
         - paths.*.*.responses.*.content.*.schema.multipleOf:unset
       description: response body multipleOf unset
       message: the response's body multipleOf was unset from %s
+    - id: response-body-not-added
+      level: info
+      direction: response
+      area: schema
+      kind: structure
+      effect: narrows
+      claims:
+        - paths.*.*.responses.*.content.*.schema.not:set
+      description: not constraint added to response body
+      message: added 'not' constraint to the response body for the status %s
+    - id: response-body-not-removed
+      level: error
+      direction: response
+      area: schema
+      kind: structure
+      effect: widens
+      claims:
+        - paths.*.*.responses.*.content.*.schema.not:unset
+      description: not constraint removed from response body
+      message: removed 'not' constraint from the response body for the status %s
     - id: response-body-one-of-added
       level: error
       direction: response
@@ -7650,6 +7710,26 @@ changes:
         - paths.*.*.responses.*.content.*.schema.multipleOf:unset
       description: response property multipleOf unset
       message: the %s response property's multipleOf was unset from %s for the response status %s
+    - id: response-property-not-added
+      level: info
+      direction: response
+      area: schema
+      kind: structure
+      effect: narrows
+      claims:
+        - paths.*.*.responses.*.content.*.schema.not:set
+      description: not constraint added to response property
+      message: added 'not' constraint to the %s response property for the status %s
+    - id: response-property-not-removed
+      level: error
+      direction: response
+      area: schema
+      kind: structure
+      effect: widens
+      claims:
+        - paths.*.*.responses.*.content.*.schema.not:unset
+      description: not constraint removed from response property
+      message: removed 'not' constraint from the %s response property for the status %s
     - id: response-property-one-of-added
       level: error
       direction: response
@@ -60777,17 +60857,17 @@ coverage:
     - location: paths.*.*.requestBody.content.*.schema.not
       action: set
       polarity: request
-      status: waived
-      category: open
-      reason: 'a not subschema appearing on a request narrows the accepted set (breaking) and is unchecked (tracked in #1054)'
-      suggestedId: request-body-not-set
+      status: covered
+      checks:
+        - request-body-not-added
+        - request-property-not-added
     - location: paths.*.*.requestBody.content.*.schema.not
       action: unset
       polarity: request
-      status: waived
-      category: open
-      reason: 'a not subschema appearing on a request narrows the accepted set (breaking) and is unchecked (tracked in #1054)'
-      suggestedId: request-body-not-unset
+      status: covered
+      checks:
+        - request-body-not-removed
+        - request-property-not-removed
     - location: paths.*.*.requestBody.content.*.schema.nullable
       action: set
       polarity: request
@@ -65383,17 +65463,17 @@ coverage:
     - location: paths.*.*.responses.*.content.*.schema.not
       action: set
       polarity: response
-      status: waived
-      category: open
-      reason: 'a not subschema appearing on a request narrows the accepted set (breaking) and is unchecked (tracked in #1054)'
-      suggestedId: response-not-set
+      status: covered
+      checks:
+        - response-body-not-added
+        - response-property-not-added
     - location: paths.*.*.responses.*.content.*.schema.not
       action: unset
       polarity: response
-      status: waived
-      category: open
-      reason: 'a not subschema appearing on a request narrows the accepted set (breaking) and is unchecked (tracked in #1054)'
-      suggestedId: response-not-unset
+      status: covered
+      checks:
+        - response-body-not-removed
+        - response-property-not-removed
     - location: paths.*.*.responses.*.content.*.schema.nullable
       action: set
       polarity: response
