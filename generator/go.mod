@@ -3,7 +3,7 @@ module github.com/oasdiff/openapi-changes-model/generator
 go 1.26.2
 
 require (
-	github.com/oasdiff/oasdiff v1.40.0
+	github.com/oasdiff/oasdiff v1.41.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
